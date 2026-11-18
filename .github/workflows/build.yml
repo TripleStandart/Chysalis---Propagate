@@ -30,6 +30,9 @@ jobs:
       - name: Build
         run: gradle build --stacktrace
 
+      - name: Game tests (headless server)
+        run: gradle runGameTest --stacktrace
+
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
         with:

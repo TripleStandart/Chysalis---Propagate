@@ -1,1 +1,1 @@
-methods:allChanged|setSectionDirty|setSectionRangeDirty|setBlocksDirty|setBlockDirty|markAllDirty|invalidateAll
+net.fabricmc.fabric.api.gametest.v1.GameTest

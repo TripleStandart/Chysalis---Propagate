@@ -26,6 +26,18 @@ loom {
 	}
 }
 
+// Server game tests (src/gametest): real placement on a headless server, run by CI with "gradle runGameTest".
+// Vanilla slabs stand in for chiseled blocks there (Propagate measures any shape the same way).
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "propagate-gametest"
+		enableGameTests = true
+		enableClientGameTests = false
+		eula = true
+	}
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
