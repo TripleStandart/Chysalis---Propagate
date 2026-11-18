@@ -93,13 +93,6 @@ public abstract class BlockStateBaseMixin implements StateCache {
         if (o != null) cir.setReturnValue(cir.getReturnValue().move(o.x, o.y, o.z));
     }
 
-    /** The 2-argument forms may answer from the state's shape cache; route moved things through the full form. */
-    @Inject(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
-            at = @At("HEAD"), cancellable = true)
-    private void propagate$outline2(BlockGetter level, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir) {
-        if (level != null && propagate$moves()) cir.setReturnValue(asState().getShape(level, pos, CollisionContext.empty()));
-    }
-
     @Inject(method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At("RETURN"), cancellable = true)
     private void propagate$collision(BlockGetter level, BlockPos pos, CollisionContext ctx, CallbackInfoReturnable<VoxelShape> cir) {
@@ -109,6 +102,7 @@ public abstract class BlockStateBaseMixin implements StateCache {
         if (!s.isEmpty()) cir.setReturnValue(s.move(o.x, o.y, o.z));
     }
 
+    /** The 2-argument form answers from the state's shape cache; route moved things through the full form. */
     @Inject(method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At("HEAD"), cancellable = true)
     private void propagate$collision2(BlockGetter level, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir) {

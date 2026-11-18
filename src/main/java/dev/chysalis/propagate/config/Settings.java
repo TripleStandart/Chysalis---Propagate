@@ -84,8 +84,7 @@ public final class Settings {
         m.put("mod:chysalis", NONE);
 
         // standing: on the block below, needs a good enough surface
-        for (String c : List.of("DoorBlock", "BaseRailBlock", "BasePressurePlateBlock", "RedStoneWireBlock",
-                "RedstoneWireBlock", "DiodeBlock", "BaseTorchBlock", "CandleBlock", "StandingSignBlock",
+        for (String c : List.of("DoorBlock", "BaseRailBlock", "BasePressurePlateBlock", "RedstoneWireBlock", "DiodeBlock", "BaseTorchBlock", "CandleBlock", "StandingSignBlock",
                 "BannerBlock", "SeaPickleBlock")) m.put(B + c, "standing");
         // resting: never needs support, just sits on the surface
         for (String c : List.of("BedBlock", "AbstractChestBlock", "FlowerPotBlock", "SkullBlock", "DecoratedPotBlock",
