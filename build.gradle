@@ -33,7 +33,7 @@ fabricApi {
 		createSourceSet = true
 		modId = "propagate-gametest"
 		enableGameTests = true
-		enableClientGameTests = false
+		enableClientGameTests = true
 		eula = true
 	}
 }

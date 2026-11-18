@@ -1,1 +1,7 @@
-net.fabricmc.fabric.api.gametest.v1.GameTest
+net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest
+net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext
+net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext
+net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext
+net.fabricmc.fabric.api.client.gametest.v1.context.TestClientLevelContext
+net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldBuilder
+net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions
