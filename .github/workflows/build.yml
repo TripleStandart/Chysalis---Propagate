@@ -33,6 +33,23 @@ jobs:
       - name: Game tests (headless server)
         run: gradle runGameTest --stacktrace
 
+      # Client game test under a virtual display: builds a scene and takes screenshots (uploaded below).
+      - name: Client game test (screenshots)
+        continue-on-error: true
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          sudo apt-get install -y -qq xvfb > /dev/null || true
+          xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --stacktrace
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-screenshots
+          path: '**/screenshots/*.png'
+          if-no-files-found: ignore
+
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
         with:

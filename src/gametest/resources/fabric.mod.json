@@ -7,6 +7,9 @@
   "entrypoints": {
     "fabric-gametest": [
       "dev.chysalis.propagate.test.PropagateGameTest"
+    ],
+    "fabric-client-gametest": [
+      "dev.chysalis.propagate.test.PropagateClientGameTest"
     ]
   },
   "depends": {
