@@ -57,7 +57,7 @@ jobs:
         if: always()
         run: |
           for f in $(find . -path '*screenshots/*.png' | sort); do
-            echo "SHOT-BEGIN $(basename $f)"; base64 -w 0 "$f"; echo; echo "SHOT-END"
+            echo "SHOT-BEGIN $(basename $f)"; base64 -w 120 "$f"; echo "SHOT-END"
           done
 
       - name: Upload screenshots
