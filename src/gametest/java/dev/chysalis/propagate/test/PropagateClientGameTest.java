@@ -59,6 +59,12 @@ public class PropagateClientGameTest implements FabricClientGameTest {
             s.runCommand("tp @p 5.5 101 2.2 200 35");
             context.waitTicks(60);
             context.takeScreenshot("propagate_closeup_chest_bed");
+
+            // side view along both rows: carved (left, north) vs full blocks (right)
+            s.runCommand("fill -4 100 -1 -1 100 4 minecraft:air");
+            s.runCommand("tp @p -3.5 100.4 1.5 -90 4");
+            context.waitTicks(80);
+            context.takeScreenshot("propagate_side_by_side");
         }
     }
 }
