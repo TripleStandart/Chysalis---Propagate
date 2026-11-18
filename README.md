@@ -9,6 +9,14 @@ carving allows, and never cut into it.
 Install it next to Chysalis and Fabric API, on the server **and** on every client (both sides move things
 the same way; the server sends its config to the clients).
 
+![Left: things on carved blocks sit on the carved surface. Right: the same things on full blocks.](docs/side_by_side.png)
+
+*Screenshot from the automated client test: vanilla bottom slabs stand in for chiseled blocks (left), full blocks for comparison (right).*
+
+| Door and torch on carved blocks | Chest and bed on carved blocks |
+|---|---|
+| ![](docs/door_torch.png) | ![](docs/chest_bed.png) |
+
 ## What it does
 
 For every thing on a chiseled block, Propagate measures the chiseled block's real outline, voxel by voxel,
@@ -78,7 +86,7 @@ Any block shape works, so slabs or stairs can be added too.
 
 Needs JDK 25. CI (`.github/workflows/build.yml`) builds the jar, runs the unit tests and the server game tests
 (`gradle runGameTest`: real placement on a headless server, with vanilla slabs standing in for chiseled blocks),
-and runs a client game test that takes screenshots. A push to `main` with a new `mod_version` publishes a release.
+and runs a client game test (SDL offscreen + Mesa) that builds a scene and takes the screenshots above. A push to `main` with a new `mod_version` publishes a release.
 
 ```
 gradle build          # jar in build/libs/, unit tests
