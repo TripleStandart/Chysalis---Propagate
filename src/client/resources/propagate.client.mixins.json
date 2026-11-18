@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "dev.chysalis.propagate.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "BlockEntityRenderDispatcherMixin",
+    "ClientLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

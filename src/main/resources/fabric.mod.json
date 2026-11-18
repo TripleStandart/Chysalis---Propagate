@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "propagate",
+  "version": "${version}",
+  "name": "Chysalis - Propagate",
+  "description": "Place doors, beds, torches, lanterns, signs, rails and other things on partly chiseled Chysalis blocks. They sit on the real carved surface and never cut into it. Categories are fully configurable.",
+  "authors": [
+    "flopside"
+  ],
+  "contributors": [
+    "Claude (Anthropic)"
+  ],
+  "contact": {
+    "sources": "https://github.com/TripleStandart/Chysalis---Propagate"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.chysalis.propagate.Propagate"
+    ],
+    "client": [
+      "dev.chysalis.propagate.client.PropagateClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "recommends": {
+    "chysalis": "*"
+  },
+  "mixins": [
+    "propagate.mixins.json",
+    {
+      "config": "propagate.client.mixins.json",
+      "environment": "client"
+    }
+  ]
+}
