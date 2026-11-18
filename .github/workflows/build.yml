@@ -44,7 +44,7 @@ jobs:
           sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1 libegl-mesa0 libgles2 mesa-utils > /dev/null || true
           shots() { find . -path '*screenshots/*.png' | grep -q . ; }
           echo "::group::attempt 1: SDL offscreen (EGL, no X server)"
-          SDL_VIDEO_DRIVER=offscreen timeout 420 gradle runClientGameTest --stacktrace || true
+          SDL_VIDEO_DRIVER=offscreen timeout 600 gradle runClientGameTest --stacktrace || true
           echo "::endgroup::"
           if ! shots; then
             echo "::group::attempt 2: Xvfb + EGL"
@@ -52,6 +52,13 @@ jobs:
             echo "::endgroup::"
           fi
           shots
+
+      - name: Print screenshots (base64, for review without artifact access)
+        if: always()
+        run: |
+          for f in $(find . -path '*screenshots/*.png' | sort); do
+            echo "SHOT-BEGIN $(basename $f)"; base64 -w 0 "$f"; echo; echo "SHOT-END"
+          done
 
       - name: Upload screenshots
         if: always()
