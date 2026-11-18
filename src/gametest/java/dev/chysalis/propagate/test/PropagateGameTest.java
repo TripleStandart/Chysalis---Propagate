@@ -51,7 +51,13 @@ public class PropagateGameTest {
     }
 
     private static void check(GameTestHelper h, boolean ok, String msg) {
-        if (!ok) throw new IllegalStateException(msg);
+        if (!ok) throw h.assertionException(Component.literal(msg));
+    }
+
+    /** Any bed (looked up by id, field names of the colour variants moved around between versions). */
+    private static BlockState bed() {
+        return net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                .getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")).defaultBlockState();
     }
 
     private static double minY(GameTestHelper h, BlockPos rel) {
@@ -68,7 +74,7 @@ public class PropagateGameTest {
         check(h, "standing".equals(cat(Blocks.REDSTONE_WIRE.defaultBlockState())), "redstone should be standing");
         check(h, "mounted".equals(cat(Blocks.WALL_TORCH.defaultBlockState())), "wall torch should be mounted");
         check(h, "attached".equals(cat(Blocks.LANTERN.defaultBlockState())), "lantern should be attached");
-        check(h, "resting".equals(cat(Blocks.RED_BED.defaultBlockState())), "bed should be resting");
+        check(h, "resting".equals(cat(bed())), "bed should be resting");
         check(h, "resting".equals(cat(Blocks.CHEST.defaultBlockState())), "chest should be resting");
         check(h, "hanging".equals(cat(Blocks.OAK_HANGING_SIGN.defaultBlockState())), "hanging sign should be hanging");
         check(h, Rules.rule(Blocks.STONE.defaultBlockState()).isNone(), "stone must not be a thing");
@@ -129,7 +135,7 @@ public class PropagateGameTest {
     public void bedNeedsBothHalvesOnASurface(GameTestHelper h) {
         setup();
         BlockPos foot = new BlockPos(1, 2, 2), head = foot.north();
-        BlockState f = Blocks.RED_BED.defaultBlockState().setValue(BedBlock.FACING, Direction.NORTH).setValue(BedBlock.PART, BedPart.FOOT);
+        BlockState f = bed().setValue(BedBlock.FACING, Direction.NORTH).setValue(BedBlock.PART, BedPart.FOOT);
         BlockState hd = f.setValue(BedBlock.PART, BedPart.HEAD);
         h.setBlock(foot.below(), bottomSlab());
         h.setBlock(head.below(), bottomSlab());
