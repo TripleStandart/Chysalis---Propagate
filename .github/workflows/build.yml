@@ -36,11 +36,13 @@ jobs:
       # Client game test under a virtual display: builds a scene and takes screenshots (uploaded below).
       - name: Client game test (screenshots)
         continue-on-error: true
+        timeout-minutes: 12
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
         run: |
-          sudo apt-get install -y -qq xvfb > /dev/null || true
-          xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGameTest --stacktrace
+          sudo apt-get update -qq > /dev/null || true
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1 mesa-utils > /dev/null || true
+          xvfb-run -a -s "-screen 0 1280x720x24 +extension GLX +render -noreset" sh -c 'glxinfo -B | head -12; gradle runClientGameTest --stacktrace'
 
       - name: Upload screenshots
         if: always()
