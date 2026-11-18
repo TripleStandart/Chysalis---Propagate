@@ -32,6 +32,6 @@ public final class PropagateClient implements ClientModInitializer {
     /** Rebuilds the chunk meshes so models pick up new offsets. */
     static void remesh() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
+        if (mc.levelExtractor != null && mc.level != null) mc.levelExtractor.allChanged();
     }
 }

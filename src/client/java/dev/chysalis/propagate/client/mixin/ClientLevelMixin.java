@@ -12,12 +12,28 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Torch flames, candle smoke, campfire sparks ... follow the moved thing. */
+/**
+ * Torch flames, candle smoke, campfire sparks ... follow the moved thing; and when a support changes
+ * (carved with the chisel: only its block entity changes), the things around it are re-meshed too.
+ */
 @Mixin(ClientLevel.class)
 public abstract class ClientLevelMixin {
+    @Inject(method = "sendBlockUpdated", at = @At("TAIL"))
+    private void propagate$remeshAroundSupport(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
+        if (Rules.isSupport(newState) || Rules.isSupport(oldState)) {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.levelExtractor != null) {
+                mc.levelExtractor.setBlocksDirty(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1,
+                        pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+            }
+        }
+    }
+
     @Redirect(method = "doAnimateTick", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/Block;animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
     private void propagate$animate(Block block, BlockState state, Level level, BlockPos pos, RandomSource random) {
