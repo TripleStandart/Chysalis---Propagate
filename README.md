@@ -111,6 +111,12 @@ Ideas from [Slabbed](https://github.com/peetsamods/slabbed) and
 [Lower My Paths and Slabs](https://github.com/dooji2/lower-my-paths-and-slabs), which do the same for slabs.
 Propagate generalises their fixed half-block offset to any carved shape, measured under each thing's own footprint.
 
+## Works with Unfurl
+
+Unfurl's chiseled doors, trapdoors and beds extend the vanilla classes, so they fall into the same categories.
+Their shape lives in a block entity, so Propagate measures them by their whole cell (a safe guess: they rest on
+the highest point under the cell and never cut in).
+
 ## Known gaps
 
 * The block-breaking crack overlay is drawn at the thing's vanilla position.

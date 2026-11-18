@@ -41,7 +41,7 @@ public final class OffsetModel extends WrapperBlockStateModel {
         try {
             if (st.isAir() || st.getBlock() instanceof LiquidBlock) return false;
             if ("chysalis".equals(BuiltInRegistries.BLOCK.getKey(st.getBlock()).getNamespace())) return false;
-            if (dev.chysalis.propagate.rules.Rules.settings().allowFullBlocks) return true;
+            if (dev.chysalis.propagate.rules.Rules.settings().allowFullBlocks || st.hasBlockEntity()) return true;
             Guard.enter();
             try {
                 return !Block.isShapeFullBlock(st.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));

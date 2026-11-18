@@ -127,6 +127,8 @@ public final class Rules {
     }
 
     private static boolean isFullBlock(BlockState st) {
+        // Block-entity shapes (Unfurl's chiseled doors and beds ...) are unknown without the world: never "full".
+        if (st.hasBlockEntity()) return false;
         try {
             return Block.isShapeFullBlock(st.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
         } catch (Throwable t) {
