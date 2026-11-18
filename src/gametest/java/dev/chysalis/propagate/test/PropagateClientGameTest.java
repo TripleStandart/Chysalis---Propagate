@@ -48,7 +48,6 @@ public class PropagateClientGameTest implements FabricClientGameTest {
             s.runCommand("setblock 12 103 0 minecraft:smooth_stone_slab[type=top]");
             s.runCommand("setblock 12 102 0 minecraft:lantern[hanging=true]");
 
-            context.runOnClient(mc -> mc.options.hideGui = true);
             s.runCommand("tp @p 5 100 9 180 12");
             context.waitTicks(200);
             context.takeScreenshot("propagate_overview");
