@@ -1,0 +1,54 @@
+name: API probe
+
+# Development helper: prints the signatures of Minecraft / Fabric classes listed in
+# .github/probe-classes.txt (as javap output in the job log), to check 26.3 API names.
+on:
+  push:
+    paths:
+      - .github/probe-classes.txt
+      - .github/probe.sh
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Resolve dependencies
+        run: gradle compileClientJava --stacktrace || true
+      - name: javap
+        run: |
+          jars=$(find ~/.gradle /home/runner/work -name '*.jar' 2>/dev/null | grep -Ei 'minecraft|fabric' | sort -u)
+          cp=$(echo "$jars" | tr '\n' ':')
+          while read -r cls; do
+            [ -z "$cls" ] && continue
+            case "$cls" in \#*) continue;; esac
+            case "$cls" in grep:*)
+              pat="${cls#grep:}"
+              echo "=================== classes matching $pat"
+              for j in $jars; do unzip -l "$j" 2>/dev/null | awk '{print $4}' | grep -E "$pat" | grep -v '\$' ; done | sort -u | head -80
+              continue;;
+            esac
+            case "$cls" in methods:*)
+              pat="${cls#methods:}"
+              echo "=================== methods matching $pat (client classes)"
+              for j in $jars; do unzip -l "$j" 2>/dev/null | awk '{print $4}' | grep -E '^net/minecraft/client/renderer/.*\.class$' | grep -v '\$' | sed 's/\.class$//; s#/#.#g'; done | sort -u > /tmp/classes.txt
+              xargs -a /tmp/classes.txt -n 200 javap -cp "$cp" 2>/dev/null | grep -E "class |$pat" | grep -B1 -E "$pat" | head -80
+              continue;;
+            esac
+            echo "=================== $cls"
+            javap -p -cp "$cp" "$cls" 2>&1 | head -150
+          done < .github/probe-classes.txt
+      - name: probe.sh
+        if: hashFiles('.github/probe.sh') != ''
+        run: |
+          jars=$(find ~/.gradle /home/runner/work -name '*.jar' 2>/dev/null | grep -Ei 'minecraft|fabric' | sort -u)
+          export CP=$(echo "$jars" | tr '\n' ':')
+          bash .github/probe.sh
