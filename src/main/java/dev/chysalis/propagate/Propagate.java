@@ -27,7 +27,7 @@ public final class Propagate implements ModInitializer {
     public void onInitialize() {
         Rules.apply(ConfigFile.load());
         // Tag-based entries ("#propagate:standing", supports tag ...) must be re-read when tags change.
-        CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> Rules.invalidate());
+        CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> Rules.tagsLoaded());
         PropagateNet.init();
         PropagateCommands.init();
         LOG.info("Propagate loaded - {} categories, {} block entries", Rules.settings().categories.size(),

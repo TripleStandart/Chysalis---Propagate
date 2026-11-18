@@ -28,6 +28,8 @@ import java.util.Set;
  */
 public final class Rules {
     private static volatile int generation = 1;
+    /** False until the first tag load: block shapes are already queried while the game boots, before tags exist. */
+    private static volatile boolean tagsBound;
     private static volatile Compiled compiled = Compiled.of(Settings.defaults());
 
     private Rules() {}
@@ -46,7 +48,23 @@ public final class Rules {
         invalidate();
     }
 
-    /** Tags were (re)loaded or something else changed what the matchers see. */
+    /** Tags were (re)loaded: tag entries become usable, every cached decision is redone. */
+    public static void tagsLoaded() {
+        tagsBound = true;
+        invalidate();
+    }
+
+    /** Tag test that is false (instead of throwing) while tags are not bound yet. */
+    static boolean inTag(BlockState st, TagKey<Block> tag) {
+        if (!tagsBound) return false;
+        try {
+            return st.is(tag);
+        } catch (IllegalStateException unbound) {
+            return false;
+        }
+    }
+
+    /** Something changed what the matchers see. */
     public static void invalidate() {
         generation++;
         dev.chysalis.propagate.place.Placement.clearCaches();
@@ -181,7 +199,7 @@ public final class Rules {
             if (st.isAir()) return false;
             Identifier id = BuiltInRegistries.BLOCK.getKey(st.getBlock());
             if (supportIds.contains(id) || supportMods.contains(id.getNamespace())) return true;
-            for (TagKey<Block> t : supportTags) if (st.is(t)) return true;
+            for (TagKey<Block> t : supportTags) if (inTag(st, t)) return true;
             return false;
         }
 
@@ -192,7 +210,7 @@ public final class Rules {
             String[] hit = ids.get(id);
             if (hit != null) return new String[]{hit[0], "\"" + hit[1] + "\""};
             for (Entry<TagKey<Block>> t : tags) {
-                if (st.is(t.key())) return new String[]{t.value(), "tag \"" + t.raw() + "\""};
+                if (inTag(st, t.key())) return new String[]{t.value(), "tag \"" + t.raw() + "\""};
             }
             Entry<Class<?>> best = null;
             int bestDepth = -1;

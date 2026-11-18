@@ -197,4 +197,30 @@ public class PropagateGameTest {
         check(h, ly >= -1e-6 && ly <= 1 + 1e-6, "hit point should be reported inside the door's own cell, y " + ly);
         h.succeed();
     }
+
+    @GameTest
+    public void blocksThatAreNotThingsStayPut(GameTestHelper h) {
+        setup();
+        BlockPos slab = new BlockPos(1, 1, 1), above = slab.above();
+        h.setBlock(slab, bottomSlab());
+        h.setBlock(above, Blocks.OAK_FENCE.defaultBlockState());
+        check(h, Math.abs(minY(h, above)) < E, "a fence is not a thing and must not move");
+        h.setBlock(above, Blocks.STONE.defaultBlockState());
+        check(h, Math.abs(minY(h, above)) < E, "a full block must not move");
+        h.succeed();
+    }
+
+    @GameTest
+    public void chestPairSharesOffset(GameTestHelper h) {
+        setup();
+        BlockPos left = new BlockPos(1, 2, 1), right = left.east();
+        h.setBlock(left.below(), bottomSlab());
+        h.setBlock(right.below(), bottomSlab());
+        h.setBlock(left, Blocks.CHEST.defaultBlockState());
+        h.setBlock(right, Blocks.CHEST.defaultBlockState());
+        double a = minY(h, left), b = minY(h, right);
+        check(h, Math.abs(a - b) < E, "both chest halves must share one height, got " + a + " / " + b);
+        check(h, a < -0.4, "chests on carved blocks should sit lower, got " + a);
+        h.succeed();
+    }
 }
