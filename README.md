@@ -64,6 +64,13 @@ A block goes into a category through **`config/propagate.json`**, using these ke
 Set a block to `"none"` to leave it alone. Plain full blocks are never moved (`allow_full_blocks`), and
 Chysalis' own blocks are surfaces, not things.
 
+**Plants on carved blocks** (Chysalis 0.3.0 or newer): while a plant (or anything else) checks whether it may
+stay on a chiseled or shaped block, that block answers tag and block questions for its main material
+(from Chysalis' public API, `ChysalisApi.mainMaterial`). So flowers grow on chiseled dirt or grass and
+cactus or sugar cane on chiseled sand. Plants (`VegetationBlock`) are in the *standing* category for this.
+Propagate still runs without Chysalis; the API is only used when Chysalis 0.3+ is installed
+(`compat/ChysalisCompat`).
+
 You can change or add categories: `anchor` (`down`, `up`, `side`, `auto`), `needs_support`, `min_coverage`,
 `tolerance` (in voxels), `union_properties` (states that share one footprint, so a door does not jump when it
 opens), `move` (`false` = only relax the support rules) and `footprint` (`shape`, `center`, `full`).
@@ -71,7 +78,7 @@ The file explains every key at the top.
 
 **Without editing the file:** data packs can add blocks to the tags `#propagate:standing`, `#propagate:resting`,
 `#propagate:hanging`, `#propagate:mounted`, `#propagate:attached` and `#propagate:never`, and add more
-surfaces to `#propagate:supports`. By default the surfaces are `chysalis:chiseled` and `chysalis:shaped`.
+surfaces to `#propagate:supports`. By default the surfaces are the tag `#chysalis:carved` (Chysalis 0.3+) plus `chysalis:chiseled` and `chysalis:shaped` for older Chysalis versions.
 Any block shape works, so slabs or stairs can be added too.
 
 ## Commands
