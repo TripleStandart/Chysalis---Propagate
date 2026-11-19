@@ -12,6 +12,11 @@ base {
 
 repositories {
 	mavenCentral()
+	// AnimatedDoors (optional client compat, compile only)
+	exclusiveContent {
+		forRepository { maven { name = "Modrinth"; url = "https://api.modrinth.com/maven" } }
+		filter { includeGroup "maven.modrinth" }
+	}
 }
 
 loom {
@@ -48,6 +53,8 @@ dependencies {
 	// against the release jar in libs/ (Chysalis is not on a Maven repository). All calls live in
 	// dev.chysalis.propagate.compat.ChysalisCompat, which is only touched when the mod is loaded.
 	compileOnly files("libs/chysalis-${project.chysalis_version}.jar")
+	// AnimatedDoors by Miraculixx (client only): its animated doors get Propagate's offset (compat mixin).
+	compileOnly "maven.modrinth:EuloLapn:${project.animated_doors_version}"
 	// The geometry core (dev.chysalis.propagate.geom) is plain Java and unit-tested.
 	testImplementation platform("org.junit:junit-bom:${project.junit_version}")
 	testImplementation 'org.junit.jupiter:junit-jupiter'

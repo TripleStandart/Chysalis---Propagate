@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "BlockEntityRenderDispatcherMixin",
-    "ClientLevelMixin"
+    "ClientLevelMixin",
+    "compat.AnimatedDoorsMixin"
   ],
   "injectors": {
     "defaultRequire": 0
