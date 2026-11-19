@@ -85,7 +85,7 @@ public final class Settings {
 
         // standing: on the block below, needs a good enough surface
         for (String c : List.of("DoorBlock", "BaseRailBlock", "BasePressurePlateBlock", "RedstoneWireBlock", "DiodeBlock", "BaseTorchBlock", "CandleBlock", "StandingSignBlock",
-                "BannerBlock", "SeaPickleBlock")) m.put(B + c, "standing");
+                "BannerBlock", "SeaPickleBlock", "VegetationBlock")) m.put(B + c, "standing");
         // resting: never needs support, just sits on the surface
         for (String c : List.of("BedBlock", "AbstractChestBlock", "FlowerPotBlock", "SkullBlock", "DecoratedPotBlock",
                 "CakeBlock", "CandleCakeBlock", "LecternBlock", "EnchantingTableBlock", "BrewingStandBlock",
@@ -105,7 +105,7 @@ public final class Settings {
     }
 
     public static Settings defaults() {
-        return new Settings(true, List.of("chysalis:chiseled", "chysalis:shaped", "#propagate:supports"),
+        return new Settings(true, List.of("#chysalis:carved", "chysalis:chiseled", "chysalis:shaped", "#propagate:supports"),
                 15.0 / 16.0, false, true, true, true, defaultCategories(), defaultBlocks());
     }
 

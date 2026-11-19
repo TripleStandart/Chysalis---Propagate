@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@code BlockState#updateShape}), so fences, redstone, mob spawning etc. keep the vanilla answer.
  */
 public final class SurvivalContext {
-    public record Frame(BlockState state, BlockPos pos) {}
+    public record Frame(BlockState state, BlockPos pos, net.minecraft.world.level.BlockGetter level) {}
 
     private static final int MAX = 16;
     private static final ThreadLocal<Frame[]> STACK = ThreadLocal.withInitial(() -> new Frame[MAX + 1]);
@@ -19,10 +19,10 @@ public final class SurvivalContext {
 
     private SurvivalContext() {}
 
-    public static void push(BlockState state, BlockPos pos) {
+    public static void push(BlockState state, BlockPos pos, net.minecraft.world.level.BlockGetter level) {
         int[] n = SIZE.get();
         if (n[0] >= MAX) n[0] = 0; // leaked frames (an exception skipped a pop): start over
-        STACK.get()[n[0]++] = new Frame(state, pos.immutable());
+        STACK.get()[n[0]++] = new Frame(state, pos.immutable(), level);
     }
 
     /** Pops the top frame if it belongs to this call (tolerates a push that never happened). */

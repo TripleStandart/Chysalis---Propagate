@@ -43,8 +43,12 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	// Propagate talks to Chysalis only through block ids, tags and block shapes, so it needs no
-	// compile dependency on it. The geometry core (dev.chysalis.propagate.geom) is plain Java and unit-tested.
+	// Propagate works without Chysalis (block ids, tags and shapes). When Chysalis >= 0.3 is installed it
+	// also asks Chysalis' public API (dev.chysalis.api) for the material of carved blocks: compile only,
+	// against the release jar in libs/ (Chysalis is not on a Maven repository). All calls live in
+	// dev.chysalis.propagate.compat.ChysalisCompat, which is only touched when the mod is loaded.
+	compileOnly files("libs/chysalis-${project.chysalis_version}.jar")
+	// The geometry core (dev.chysalis.propagate.geom) is plain Java and unit-tested.
 	testImplementation platform("org.junit:junit-bom:${project.junit_version}")
 	testImplementation 'org.junit.jupiter:junit-jupiter'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

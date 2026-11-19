@@ -134,9 +134,44 @@ public abstract class BlockStateBaseMixin implements StateCache {
         if (Placement.holds(level, pos, self, face, f.state())) cir.setReturnValue(true);
     }
 
+    // ------------------------------------------------------------------ material of carved supports
+
+    /**
+     * While a thing checks whether it may stand on (or hang from) a carved Chysalis block, the support
+     * answers "is it dirt / sand / ..." for its main material, so plants grow on chiseled dirt, cactus on
+     * chiseled sand etc. Cheap for everything else: one cached field read (isSupport) before anything else.
+     */
+    @Inject(method = "is(Lnet/minecraft/tags/TagKey;)Z", at = @At("HEAD"), cancellable = true, require = 0)
+    private void propagate$isTag(net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> tag,
+                                 CallbackInfoReturnable<Boolean> cir) {
+        BlockState m = propagate$material();
+        if (m != null) cir.setReturnValue(m.is(tag));
+    }
+
+    @Inject(method = "is(Lnet/minecraft/world/level/block/Block;)Z", at = @At("HEAD"), cancellable = true, require = 0)
+    private void propagate$isBlock(net.minecraft.world.level.block.Block block, CallbackInfoReturnable<Boolean> cir) {
+        BlockState m = propagate$material();
+        if (m != null) cir.setReturnValue(m.is(block));
+    }
+
+    /** Main material of this carved support while a thing above / below it asks, else null. */
+    @Unique
+    private BlockState propagate$material() {
+        if (!dev.chysalis.propagate.compat.ChysalisCompat.AVAILABLE) return null;
+        BlockState self = asState();
+        if (!Rules.isSupport(self)) return null;
+        SurvivalContext.Frame f = SurvivalContext.top();
+        if (f == null || f.level() == null || Guard.active()) return null;
+        BlockPos below = f.pos().below(), above = f.pos().above();
+        BlockPos at = f.level().getBlockState(below) == self ? below : f.level().getBlockState(above) == self ? above : null;
+        if (at == null) return null;
+        BlockState m = dev.chysalis.propagate.compat.ChysalisCompat.mainMaterial(f.level(), at);
+        return m == self ? null : m;
+    }
+
     @Inject(method = "canSurvive", at = @At("HEAD"))
     private void propagate$surviveIn(LevelReader level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
-        if (pos != null && propagate$isThing()) SurvivalContext.push(asState(), pos);
+        if (pos != null && propagate$isThing()) SurvivalContext.push(asState(), pos, level);
     }
 
     @Inject(method = "canSurvive", at = @At("RETURN"))
@@ -148,7 +183,7 @@ public abstract class BlockStateBaseMixin implements StateCache {
     private void propagate$updateIn(LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction dir,
                                     BlockPos neighborPos, BlockState neighbor, RandomSource random,
                                     CallbackInfoReturnable<BlockState> cir) {
-        if (pos != null && propagate$isThing()) SurvivalContext.push(asState(), pos);
+        if (pos != null && propagate$isThing()) SurvivalContext.push(asState(), pos, level);
     }
 
     @Inject(method = "updateShape", at = @At("RETURN"))

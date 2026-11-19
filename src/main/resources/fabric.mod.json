@@ -30,7 +30,7 @@
     "fabric-api": "*"
   },
   "recommends": {
-    "chysalis": "*"
+    "chysalis": ">=0.3.0"
   },
   "mixins": [
     "propagate.mixins.json",
