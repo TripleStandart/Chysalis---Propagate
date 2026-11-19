@@ -14,6 +14,7 @@
     "sources": "https://github.com/TripleStandart/Chysalis---Propagate"
   },
   "license": "MIT",
+  "icon": "assets/propagate/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
