@@ -102,6 +102,17 @@ public abstract class BlockStateBaseMixin implements StateCache {
         if (!s.isEmpty()) cir.setReturnValue(s.move(o.x, o.y, o.z));
     }
 
+    /**
+     * Vanilla's collision search only looks at blocks in the ring around the entity's box when they say
+     * their shape is "large" (fences, walls). A moved thing's shape can reach into the next block (a door
+     * lowered into a carved support), so without this it counts only while the entity's box overlaps the
+     * thing's own cell: walking over it, the collision flickered between the moved and the vanilla place.
+     */
+    @Inject(method = "hasLargeCollisionShape", at = @At("HEAD"), cancellable = true, require = 0)
+    private void propagate$large(CallbackInfoReturnable<Boolean> cir) {
+        if (propagate$moves()) cir.setReturnValue(true);
+    }
+
     /** The 2-argument form answers from the state's shape cache; route moved things through the full form. */
     @Inject(method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At("HEAD"), cancellable = true)

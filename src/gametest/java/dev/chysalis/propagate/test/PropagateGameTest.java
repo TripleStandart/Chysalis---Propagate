@@ -199,6 +199,25 @@ public class PropagateGameTest {
     }
 
     @GameTest
+    public void entityCollisionFindsTheLoweredPart(GameTestHelper h) {
+        setup();
+        BlockPos slab = new BlockPos(1, 1, 1), lower = slab.above();
+        h.setBlock(slab, bottomSlab());
+        BlockState low = Blocks.OAK_DOOR.defaultBlockState();
+        h.setBlock(lower, low);
+        h.setBlock(lower.above(), low.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER));
+        // a small box inside the slab's cell (upper half), where only the lowered door reaches: vanilla only
+        // checks neighbouring cells for "large" shapes, so the moved door must report one
+        BlockPos a = h.absolutePos(slab);
+        net.minecraft.world.phys.AABB box = new net.minecraft.world.phys.AABB(a.getX() + 0.2, a.getY() + 0.6, a.getZ() + 0.85,
+                a.getX() + 0.8, a.getY() + 0.9, a.getZ() + 0.98);
+        boolean found = false;
+        for (var shape : h.getLevel().getBlockCollisions(null, box)) found |= !shape.isEmpty();
+        check(h, found, "the collision search should find the lowered door from the cell below");
+        h.succeed();
+    }
+
+    @GameTest
     public void blocksThatAreNotThingsStayPut(GameTestHelper h) {
         setup();
         BlockPos slab = new BlockPos(1, 1, 1), above = slab.above();
