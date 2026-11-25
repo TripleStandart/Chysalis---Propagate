@@ -30,7 +30,69 @@ public final class Anchors {
                 yield f != null && f.getAxis().isHorizontal() ? side(f.getOpposite()) : null;
             }
             case AUTO -> auto(st);
+            case GUESS -> guess(st);
         };
+    }
+
+    /**
+     * For things nobody listed: the block state's own hints first (hanging, face, 6-way facing ...), then
+     * the outline. A thing that touches the side behind it (from a horizontal "facing", either way round)
+     * and not the floor is mounted there; one on the floor stands; one only touching the ceiling hangs.
+     */
+    static Side guess(BlockState st) {
+        Side hint = hinted(st);
+        if (hint != null) return hint;
+        net.minecraft.world.phys.AABB b;
+        try {
+            var shape = st.getShape(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, net.minecraft.core.BlockPos.ZERO);
+            if (shape.isEmpty()) return Side.DOWN;
+            b = shape.bounds();
+        } catch (Throwable t) {
+            return Side.DOWN;
+        }
+        double e = 1e-4;
+        boolean down = b.minY < e, up = b.maxY > 1 - e;
+        Direction f = direction(st, "facing");
+        if (f == null) f = direction(st, "horizontal_facing");
+        if (f != null && f.getAxis().isHorizontal() && !down) {
+            if (touches(b, f.getOpposite(), e)) return side(f.getOpposite());
+            if (touches(b, f, e)) return side(f);
+        }
+        if (down) return Side.DOWN;
+        if (up) return Side.UP;
+        Direction only = null;
+        for (Direction d : Direction.Plane.HORIZONTAL) {
+            if (!touches(b, d, e)) continue;
+            if (only != null) return Side.DOWN;
+            only = d;
+        }
+        return only != null ? side(only) : Side.DOWN;
+    }
+
+    private static boolean touches(net.minecraft.world.phys.AABB b, Direction d, double e) {
+        return switch (d) {
+            case NORTH -> b.minZ < e;
+            case SOUTH -> b.maxZ > 1 - e;
+            case WEST -> b.minX < e;
+            case EAST -> b.maxX > 1 - e;
+            case DOWN -> b.minY < e;
+            case UP -> b.maxY > 1 - e;
+        };
+    }
+
+    /** The block state's hints only (no default). */
+    private static Side hinted(BlockState st) {
+        if (value(st, "hanging") instanceof Boolean h) return h ? Side.UP : Side.DOWN;
+        if (value(st, "face") instanceof AttachFace) return auto(st);
+        if (value(st, "attachment") instanceof BellAttachType) return auto(st);
+        Direction tip = direction(st, "vertical_direction");
+        if (tip != null && tip.getAxis().isVertical()) return tip == Direction.UP ? Side.DOWN : Side.UP;
+        Property<?> facingProp = property(st, "facing");
+        if (facingProp != null && facingProp.getPossibleValues().contains(Direction.UP)) {
+            Direction f = direction(st, "facing");
+            if (f != null) return side(f.getOpposite());
+        }
+        return null;
     }
 
     private static Side auto(BlockState st) {

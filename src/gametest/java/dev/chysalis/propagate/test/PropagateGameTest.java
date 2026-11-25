@@ -84,6 +84,24 @@ public class PropagateGameTest {
         h.succeed();
     }
 
+    /** Things nobody listed (modded lamps ...): the side they touch is guessed from their outline. */
+    @GameTest
+    public void guessesTheSurfaceFromTheOutline(GameTestHelper h) {
+        setup();
+        var guess = dev.chysalis.propagate.config.Category.Anchor.GUESS;
+        BlockState wall = Blocks.WALL_TORCH.defaultBlockState().setValue(net.minecraft.world.level.block.WallTorchBlock.FACING, Direction.NORTH);
+        check(h, dev.chysalis.propagate.rules.Anchors.resolve(wall, guess) == dev.chysalis.propagate.geom.Side.SOUTH,
+                "a wall thing facing north is guessed to hang on the south side");
+        check(h, dev.chysalis.propagate.rules.Anchors.resolve(Blocks.TORCH.defaultBlockState(), guess) == dev.chysalis.propagate.geom.Side.DOWN,
+                "a standing thing is guessed to stand");
+        check(h, dev.chysalis.propagate.rules.Anchors.resolve(Blocks.LANTERN.defaultBlockState()
+                        .setValue(net.minecraft.world.level.block.LanternBlock.HANGING, true), guess) == dev.chysalis.propagate.geom.Side.UP,
+                "a hanging lantern hangs");
+        check(h, "fitted".equals(Rules.settings().fallback), "unlisted modded things use the fitted fallback");
+        check(h, Rules.rule(Blocks.OAK_FENCE.defaultBlockState()).isNone(), "vanilla fences are never guessed");
+        h.succeed();
+    }
+
     private static String cat(BlockState st) {
         Rule r = Rules.rule(st);
         return r.isNone() ? "none" : r.category().name();

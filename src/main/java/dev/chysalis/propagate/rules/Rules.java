@@ -112,7 +112,11 @@ public final class Rules {
         if (isSupport(st)) return Rule.none("it is a support itself");
 
         String[] match = cc.match(st);
-        if (match == null) return Rule.none("no entry in \"blocks\" matches");
+        if (match == null) {
+            if (Settings.NONE.equals(s.fallback)) return Rule.none("no entry in \"blocks\" matches (fallback is none)");
+            if (!fallbackShape(st)) return Rule.none("no entry in \"blocks\" matches, and it is (nearly) a full block");
+            match = new String[]{s.fallback, "no entry matches, fallback"};
+        }
         String catName = match[0], why = match[1];
         if (Settings.NONE.equals(catName)) return Rule.none(why + " -> none");
         Category cat = s.categories.get(catName);
@@ -124,6 +128,28 @@ public final class Rules {
         if (anchor == null) return Rule.none(why + " -> " + cat.name() + ", but this state has no single surface to rest on");
         Rule.Link link = Anchors.link(st);
         return new Rule(cat, anchor, link, link == Rule.Link.PAIR ? Anchors.partner(st) : null, why + " -> " + cat.name());
+    }
+
+    /** Things the fallback may move: a visible outline clearly smaller than the block (not cubes, slabs-as-blocks ...). */
+    private static boolean fallbackShape(BlockState st) {
+        if (!st.getFluidState().isEmpty()) return false;
+        // vanilla things are covered by the built-in list; connecting blocks (fences, walls, panes, stairs)
+        // would come apart from their neighbours
+        Block b0 = st.getBlock();
+        if ("minecraft".equals(BuiltInRegistries.BLOCK.getKey(b0).getNamespace())) return false;
+        if (b0 instanceof net.minecraft.world.level.block.CrossCollisionBlock || b0 instanceof net.minecraft.world.level.block.WallBlock
+                || b0 instanceof net.minecraft.world.level.block.FenceGateBlock || b0 instanceof net.minecraft.world.level.block.StairBlock
+                || b0 instanceof net.minecraft.world.level.block.SlabBlock) return false;
+        try {
+            var shape = st.getShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+            if (shape.isEmpty() || Block.isShapeFullBlock(shape)) return false;
+            var b = shape.bounds();
+            double vol = 0;
+            for (var box : shape.toAabbs()) vol += box.getXsize() * box.getYsize() * box.getZsize();
+            return vol < 0.6 && !(b.getXsize() > 0.99 && b.getZsize() > 0.99 && b.getYsize() > 0.49);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private static boolean isFullBlock(BlockState st) {
