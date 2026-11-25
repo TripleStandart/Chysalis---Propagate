@@ -86,22 +86,38 @@ public final class PropagateCommands {
 
     private static int set(CommandSourceStack src, Block block, String category) {
         String cat = category.toLowerCase(Locale.ROOT);
-        String key = BuiltInRegistries.BLOCK.getKey(block).toString();
-        Settings s = Rules.settings();
-        if (cat.equals("default")) {
-            s = s.withBlock(key, null);
-        } else if (cat.equals(Settings.NONE) || s.categories.containsKey(cat)) {
-            s = s.withBlock(key, cat);
-        } else {
+        if (!cat.equals("default") && !cat.equals(Settings.NONE) && !Rules.settings().categories.containsKey(cat)) {
             src.sendFailure(Component.literal("Unknown category \"" + category + "\". Try /propagate categories."));
             return 0;
         }
+        say(src, assign(src.getServer(), block, cat));
+        return 1;
+    }
+
+    /** Puts a block into a category ("default" removes its entry), saves and syncs; returns the message. */
+    public static String assign(net.minecraft.server.MinecraftServer server, Block block, String cat) {
+        String key = BuiltInRegistries.BLOCK.getKey(block).toString();
+        Settings s = Rules.settings().withBlock(key, cat.equals("default") ? null : cat);
         Rules.apply(s);
         boolean saved = ConfigFile.save(s);
-        PropagateNet.broadcast(src.getServer());
-        say(src, "Propagate: " + key + " -> " + (cat.equals("default") ? "default (class / tag / mod rules)" : cat)
-                + (saved ? "" : " (could not write the config file, change lasts until restart)"));
-        return 1;
+        PropagateNet.broadcast(server);
+        return "Propagate: " + key + " -> " + (cat.equals("default") ? "default (class / tag / mod rules, fallback)" : cat)
+                + (saved ? "" : " (could not write the config file, change lasts until restart)");
+    }
+
+    /** The category a block's own entry gives it, or "default". */
+    public static String entryOf(Block block) {
+        String v = Rules.settings().blocks.get(BuiltInRegistries.BLOCK.getKey(block).toString());
+        return v == null ? "default" : v;
+    }
+
+    /** default, the categories, none - the order the wrench cycles through. */
+    public static List<String> cycle() {
+        List<String> out = new ArrayList<>();
+        out.add("default");
+        out.addAll(Rules.settings().categories.keySet());
+        out.add(Settings.NONE);
+        return out;
     }
 
     private static int categories(CommandSourceStack src) {

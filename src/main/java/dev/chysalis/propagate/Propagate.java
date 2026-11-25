@@ -30,6 +30,7 @@ public final class Propagate implements ModInitializer {
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> Rules.tagsLoaded());
         PropagateNet.init();
         PropagateCommands.init();
+        dev.chysalis.propagate.compat.WrenchOverride.init();
         LOG.info("Propagate loaded - {} categories, {} block entries", Rules.settings().categories.size(),
                 Rules.settings().blocks.size());
     }

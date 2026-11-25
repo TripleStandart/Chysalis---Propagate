@@ -131,7 +131,7 @@ public final class Rules {
     }
 
     /** Things the fallback may move: a visible outline clearly smaller than the block (not cubes, slabs-as-blocks ...). */
-    private static boolean fallbackShape(BlockState st) {
+    static boolean fallbackShape(BlockState st) {
         if (!st.getFluidState().isEmpty()) return false;
         // vanilla things are covered by the built-in list; connecting blocks (fences, walls, panes, stairs)
         // would come apart from their neighbours
@@ -146,7 +146,7 @@ public final class Rules {
             var b = shape.bounds();
             double vol = 0;
             for (var box : shape.toAabbs()) vol += box.getXsize() * box.getYsize() * box.getZsize();
-            return vol < 0.6 && !(b.getXsize() > 0.99 && b.getZsize() > 0.99 && b.getYsize() > 0.49);
+            return vol < 0.85 && !(b.getXsize() > 0.99 && b.getZsize() > 0.99 && b.getYsize() > 0.49);
         } catch (Throwable t) {
             return false;
         }

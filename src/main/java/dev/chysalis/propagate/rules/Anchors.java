@@ -54,9 +54,12 @@ public final class Anchors {
         boolean down = b.minY < e, up = b.maxY > 1 - e;
         Direction f = direction(st, "facing");
         if (f == null) f = direction(st, "horizontal_facing");
-        if (f != null && f.getAxis().isHorizontal() && !down) {
-            if (touches(b, f.getOpposite(), e)) return side(f.getOpposite());
-            if (touches(b, f, e)) return side(f);
+        if (f != null && f.getAxis().isHorizontal()) {
+            // A thing pressed against the block behind it is mounted there, even if it reaches the floor
+            // (wall lamps, sconces with a foot): unless it fills the block front to back, then it stands.
+            boolean deep = f.getAxis() == Direction.Axis.X ? b.getXsize() > 0.99 : b.getZsize() > 0.99;
+            boolean back = touches(b, f.getOpposite(), e), front = touches(b, f, e);
+            if (!deep && back != front && (!down || thin(b, f))) return side(back ? f.getOpposite() : f);
         }
         if (down) return Side.DOWN;
         if (up) return Side.UP;
@@ -67,6 +70,11 @@ public final class Anchors {
             only = d;
         }
         return only != null ? side(only) : Side.DOWN;
+    }
+
+    /** Flat against a wall: at most half a block deep along the facing axis. */
+    private static boolean thin(net.minecraft.world.phys.AABB b, Direction f) {
+        return (f.getAxis() == Direction.Axis.X ? b.getXsize() : b.getZsize()) <= 0.5 + 1e-4;
     }
 
     private static boolean touches(net.minecraft.world.phys.AABB b, Direction d, double e) {

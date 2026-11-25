@@ -91,6 +91,7 @@ Any block shape works, so slabs or stairs can be added too.
   which config entry decided, its category, how much of it touches, whether it holds and how far it moved.
 * `/propagate categories`: the categories and their settings.
 * `/propagate set <block> <category|none|default>`: put a block into a category (gamemaster). This is saved to the file and sent to everyone.
+* With Chysalis 0.3.9+: use the **Chysalis Wrench** on a thing (sneak + right-click for things with their own right-click, like lamps) to cycle its block's category: default, standing, resting, hanging, mounted, attached, fitted, none. Left-click with the wrench goes back. The action bar shows the result; same as `/propagate set` (gamemasters, or anyone in singleplayer).
 * `/propagate reload`: re-read the file and send it to everyone (gamemaster).
 
 ## Building
