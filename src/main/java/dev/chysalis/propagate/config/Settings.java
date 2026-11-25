@@ -37,10 +37,19 @@ public final class Settings {
     public final Map<String, Category> categories;
     /** Key (id, #tag, class:..., mod:...) to category name or "none", in file order. */
     public final Map<String, String> blocks;
+    /** Category for things no entry in {@link #blocks} matches (modded lamps, decorations ...), or "none". */
+    public final String fallback;
 
     public Settings(boolean enabled, List<String> supports, double maxOffset, boolean allowFullBlocks,
                     boolean fixTargeting, boolean moveParticles, boolean moveSleepers,
                     Map<String, Category> categories, Map<String, String> blocks) {
+        this(enabled, supports, maxOffset, allowFullBlocks, fixTargeting, moveParticles, moveSleepers, categories, blocks, "fitted");
+    }
+
+    public Settings(boolean enabled, List<String> supports, double maxOffset, boolean allowFullBlocks,
+                    boolean fixTargeting, boolean moveParticles, boolean moveSleepers,
+                    Map<String, Category> categories, Map<String, String> blocks, String fallback) {
+        this.fallback = fallback == null ? NONE : fallback;
         this.enabled = enabled;
         this.supports = List.copyOf(supports);
         this.maxOffset = Math.max(0.0, Math.min(1.0, maxOffset));
@@ -68,6 +77,10 @@ public final class Settings {
                 List.of("powered", "attached"), true, Category.FootprintMode.SHAPE));
         put(m, new Category("attached", Category.Anchor.AUTO, true, 0.5, 1.0,
                 List.of("powered"), true, Category.FootprintMode.SHAPE));
+        // fitted: anything not listed (modded lamps, decorations ...): moved onto the surface it touches,
+        // vanilla survival rules unchanged
+        put(m, new Category("fitted", Category.Anchor.GUESS, false, 0.0, 1.0,
+                List.of("open", "powered", "lit"), true, Category.FootprintMode.SHAPE));
         return m;
     }
 
@@ -169,7 +182,13 @@ public final class Settings {
         } else {
             blocks = d.blocks;
         }
-        return new Settings(enabled, supports, maxOffset, full, targeting, particles, sleepers, cats, blocks);
+        String fallback = o.has("fallback") && o.get("fallback").isJsonPrimitive()
+                ? o.get("fallback").getAsString().trim().toLowerCase(Locale.ROOT) : d.fallback;
+        if (!fallback.equals(NONE) && !cats.containsKey(fallback)) {
+            problems.add("fallback uses unknown category \"" + fallback + "\"");
+            fallback = d.fallback;
+        }
+        return new Settings(enabled, supports, maxOffset, full, targeting, particles, sleepers, cats, blocks, fallback);
     }
 
     private static Category category(String name, JsonObject c, Category base, List<String> problems) {
@@ -223,7 +242,7 @@ public final class Settings {
         Map<String, String> b = new LinkedHashMap<>();
         if (value != null) b.put(key, value); // explicit entries go first so they are easy to find
         for (Map.Entry<String, String> e : blocks.entrySet()) if (!e.getKey().equals(key)) b.put(e.getKey(), e.getValue());
-        return new Settings(enabled, supports, maxOffset, allowFullBlocks, fixTargeting, moveParticles, moveSleepers, categories, b);
+        return new Settings(enabled, supports, maxOffset, allowFullBlocks, fixTargeting, moveParticles, moveSleepers, categories, b, fallback);
     }
 
     /** Compact JSON for the network (no comments). */
@@ -260,6 +279,7 @@ public final class Settings {
         JsonObject b = new JsonObject();
         blocks.forEach(b::addProperty);
         o.add("blocks", b);
+        o.addProperty("fallback", fallback);
         return o;
     }
 
@@ -282,6 +302,7 @@ public final class Settings {
             //
             // categories    how a kind of thing finds its surface:
             //   anchor            "down" = stands on the block below, "up" = hangs from the block above,
+            //                     "guess" = like "auto", then the side of its cell its outline touches,
             //                     "side" = fixed to the block behind it (from its "facing"),
             //                     "auto" = read from the block state (hanging, face, attachment, half,
             //                     6-way facing, vertical_direction), otherwise "down".
@@ -300,6 +321,8 @@ public final class Settings {
             //   "class:<java class>"   that class and every subclass, so modded doors, beds, torches ...
             //                          are found automatically (the most specific class wins)
             //   "mod:<namespace>"      every block of a mod (weakest)
+            // fallback      category for things no entry matches (default "fitted": modded lamps and
+            //               decorations move onto the surface their outline touches); "none" = leave them.
             // In game: /propagate set <block> <category|none|default>, /propagate inspect, /propagate categories.
             """;
 }

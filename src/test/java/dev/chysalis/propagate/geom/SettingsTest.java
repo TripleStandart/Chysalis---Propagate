@@ -17,7 +17,8 @@ class SettingsTest {
         Settings back = Settings.parse(d.toFileText(), problems);
         assertTrue(problems.isEmpty(), problems.toString());
         assertEquals(d.toJson(), back.toJson());
-        assertEquals(5, back.categories.size());
+        assertEquals(6, back.categories.size());
+        assertEquals("fitted", back.fallback);
         assertEquals("standing", back.blocks.get("class:net.minecraft.world.level.block.DoorBlock"));
         assertEquals("resting", back.blocks.get("class:net.minecraft.world.level.block.BedBlock"));
     }

@@ -29,13 +29,16 @@ public record Category(String name, Anchor anchor, boolean needsSupport, double 
         /** Fixed to the block behind it; "behind" comes from the {@code facing} property. */
         SIDE,
         /** Read from the block state ({@code hanging}, {@code face}, {@code attachment}, {@code half}, 6-way {@code facing} ...), else DOWN. */
-        AUTO;
+        AUTO,
+        /** Like AUTO, then from the thing's outline: the face of its cell it touches (for modded things nobody listed). */
+        GUESS;
 
         public static Anchor parse(String s) {
             return switch (s == null ? "" : s.trim().toLowerCase(java.util.Locale.ROOT)) {
                 case "down", "floor" -> DOWN;
                 case "up", "ceiling" -> UP;
                 case "side", "wall" -> SIDE;
+                case "guess", "shape" -> GUESS;
                 default -> AUTO;
             };
         }

@@ -34,6 +34,10 @@ middle 4x4 voxels, a door a 3-voxel strip along one edge, a bed the whole face.
 * **Everything follows:** outline, collision, model, block-entity rendering (chests, beds, signs, banners,
   heads), torch and candle particles and sleeping players. The crosshair also finds the parts that reach
   down into the chiseled block's space.
+* **Modded things too:** things from other mods that no list entry names (lamps, decorations ...) are moved
+  onto the surface their outline touches: the wall behind them, the floor or the ceiling (config `fallback`,
+  category `fitted`; vanilla survival rules stay as they are). Vanilla fences, walls, panes and stairs are never
+  guessed.
 * **Hanging and wall things too:** a lantern or hanging sign under a block carved from below moves up into
   it. A wall torch, ladder or sign on a recessed side moves back into the recess.
 
